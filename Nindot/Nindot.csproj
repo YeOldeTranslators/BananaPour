@@ -3,7 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <PackageVersion>1.0.0</PackageVersion>
-    <PackageProjectUrl>https://github.com/Amethyst-szs/MoonFlow</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Amethyst-szs/BananaPour</PackageProjectUrl>
     <NoWarn>IDE0130,IDE0160</NoWarn> <!-- Disable namespace folder structure matching -->
   </PropertyGroup>
 

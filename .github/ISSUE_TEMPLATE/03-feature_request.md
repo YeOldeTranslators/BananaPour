@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for MoonFlow to implement
+about: Suggest an idea for BananaPour to implement
 title: "[REQUEST] "
 labels: enhancement
 assignees: ''

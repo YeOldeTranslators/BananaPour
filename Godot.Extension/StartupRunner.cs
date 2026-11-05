@@ -23,7 +23,7 @@ public partial class StartupRunner : Node
         foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
             var name = assembly.GetName().Name;
-            if (!name.StartsWith("MoonFlow"))
+            if (!name.StartsWith("BananaPour"))
                 continue;
 
             foreach (Type type in assembly.GetTypes())

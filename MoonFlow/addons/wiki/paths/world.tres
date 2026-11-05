@@ -1,8 +1,0 @@
-[gd_resource type="Resource" script_class="WikiAccessorResource" format=3 uid="uid://ohtd8ro6uvsm"]
-
-[ext_resource type="Script" uid="uid://dguj7hkqnpmqv" path="res://addons/wiki/access/WikiAccessorResource.cs" id="1_xnttu"]
-
-[resource]
-script = ExtResource("1_xnttu")
-Path = "res://docs/kingdoms/basics_kingdom_editor.md"
-LocalPath = "kingdoms/basics_kingdom_editor.md"

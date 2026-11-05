@@ -1,8 +1,0 @@
-[gd_resource type="Resource" script_class="WikiAccessorResource" format=3 uid="uid://o4ehsw6vvdii"]
-
-[ext_resource type="Script" uid="uid://dguj7hkqnpmqv" path="res://addons/wiki/access/WikiAccessorResource.cs" id="1_ph11u"]
-
-[resource]
-script = ExtResource("1_ph11u")
-Path = "res://docs/events/basics_event_graph.md"
-LocalPath = "events/basics_event_graph.md"
