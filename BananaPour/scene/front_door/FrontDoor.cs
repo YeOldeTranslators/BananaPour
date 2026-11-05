@@ -1,0 +1,180 @@
+using System;
+using Godot;
+
+using static Nindot.RomfsPathUtility;
+
+using BananaPour.Project;
+using BananaPour.Scene.Settings;
+using System.IO;
+
+namespace BananaPour.Scene;
+
+[SceneUid("uid://qcjh1t51akmr"), Icon("res://asset/app/icon/front_door.png")]
+public partial class FrontDoor : AppScene
+{
+	private ProjectInitInfo InitInfo = new();
+
+	private Label OpenProjectError = null;
+	private OptionButton NewProjectVersionButton = null;
+	private LangPicker NewProjectLangButton = null;
+	private Button NewProjectCreateButton = null;
+
+	[Signal]
+	public delegate void OpenProjectEventHandler(string path);
+	[Signal]
+	public delegate void OpenProjectFailedEventHandler(string path);
+	[Signal]
+	public delegate void NewProjectPathEventHandler(string path);
+	[Signal]
+	public delegate void NewProjectInvalidPathEventHandler();
+
+	protected override void AppInit()
+	{
+		// Obtain references to nodes in scene
+		OpenProjectError = GetNode<Label>("%Label_OpenError");
+		OpenProjectError.Hide();
+
+		NewProjectVersionButton = GetNode<OptionButton>("%Option_Version");
+
+		NewProjectLangButton = GetNode<LangPicker>("%Option_DefaultLang");
+		NewProjectLangButton.SetSelection("USen");
+		NewProjectLangButton.SetGameVersion(RomfsVersion.INVALID_VERSION);
+
+		NewProjectCreateButton = GetNode<Button>("%Button_Create");
+		OnUpdateCreateProjectButtonState();
+
+		// Check if user needs to provide a RomFS path
+		if (!RomfsAccessor.IsValid())
+			ForceOpenRomfsAccessorApp();
+	}
+
+	private static void OpenEngineSettingsApp() { AppSceneServer.CreateApp<EngineSettingsApp>(); }
+	private static void ForceOpenRomfsAccessorApp() { AppSceneServer.CreateApp<RomfsAccessorConfigApp>(); }
+	private static void OpenContributorPage() { AppSceneServer.CreateApp<FrontDoorContributorApp>(); }
+
+	// ====================================================== //
+	// ==================== Signal Events =================== //
+	// ====================================================== //
+
+	private void OnDialogNewProjectPathSelected(string path)
+	{
+		if (!ProjectManager.IsValidOpenOrCreate(ref path))
+		{
+			EmitSignal(SignalName.NewProjectInvalidPath);
+			return;
+		}
+
+		if (ProjectManager.IsProjectConfigExist(ref path, out _, false))
+		{
+			EmitSignal(SignalName.NewProjectInvalidPath);
+			return;
+		}
+
+		InitInfo.Path = path;
+		EmitSignal(SignalName.NewProjectPath, path);
+
+		OnUpdateCreateProjectButtonState();
+
+		GD.Print("Set InitInfo.Path to " + path);
+	}
+
+	public void OnDialogOpenProjectPathSelected(string path)
+	{
+		var result = ProjectManager.TryOpenProject(ref path, out RomfsVersion version);
+
+		if (result == ProjectManager.ProjectManagerResult.OK)
+		{
+			EmitSignal(SignalName.OpenProject, path);
+			return;
+		}
+
+		OpenProjectError.Show();
+		OpenProjectError.Call("set_label", [Enum.GetName(result), Enum.GetName(version)]);
+
+		EmitSignal(SignalName.OpenProjectFailed, path);
+	}
+
+	private void OnNewProjectVersionButtonPressed()
+	{
+		foreach (var ver in Enum.GetValues<RomfsVersion>())
+		{
+			if (ver == RomfsVersion.INVALID_VERSION)
+				continue;
+
+			bool isHaveValidPath = RomfsAccessor.IsHaveVersion(ver);
+
+			var idx = NewProjectVersionButton.GetItemIndex((int)ver);
+			NewProjectVersionButton.SetItemDisabled(idx, !isHaveValidPath);
+		}
+	}
+
+	private void OnNewProjectVersionSelected(int id)
+	{
+		if (!Enum.IsDefined((RomfsVersion)id))
+		{
+			GD.Print("Set InitInfo.Version to INVALID_VERSION");
+			InitInfo.Version = RomfsVersion.INVALID_VERSION;
+			NewProjectLangButton.SetGameVersion(InitInfo.Version);
+
+			OnUpdateCreateProjectButtonState();
+			return;
+		}
+
+		var select = (RomfsVersion)id;
+		InitInfo.Version = select;
+		NewProjectLangButton.SetGameVersion(InitInfo.Version);
+
+		OnUpdateCreateProjectButtonState();
+
+		GD.Print("Set InitInfo.Version to " + Enum.GetName(InitInfo.Version));
+	}
+
+	private void OnNewProjectDefaultLangSelected(string lang, int idx)
+	{
+		InitInfo.DefaultLanguage = lang;
+		GD.Print("Set InitInfo.DefaultLanguage to " + lang);
+	}
+
+	private void OnUpdateCreateProjectButtonState()
+	{
+		bool isOk = InitInfo.Path != null && InitInfo.Path != string.Empty;
+		isOk &= InitInfo.Version != RomfsVersion.INVALID_VERSION;
+
+		NewProjectCreateButton.Disabled = !isOk;
+	}
+
+	private void OnNewProjectCreate()
+	{
+		var res = ProjectManager.TryCreateProject(InitInfo);
+		if (res != ProjectManager.ProjectManagerResult.OK)
+			GD.PushError("Failed to create project!");
+
+		OnDialogOpenProjectPathSelected(InitInfo.Path);
+	}
+
+	private void OnExploreGameFilesPressed()
+	{
+		string p = ProjectSettings.GlobalizePath(ProjectManager.TEMPORARY_PROJECT_PATH);
+
+		// Remake directory at path
+		if (Directory.Exists(p))
+			Directory.Delete(p, true);
+		
+		Directory.CreateDirectory(p);
+
+		// Init project in temporary directory
+		InitInfo.Path = p;
+		if (InitInfo.Version == RomfsVersion.INVALID_VERSION)
+			InitInfo.Version = RomfsAccessor.ActiveVersion;
+
+		OnNewProjectCreate();
+	}
+
+	private void OnLaunchApplicationUpdater(string url, int byteSize)
+	{
+		var app = AppSceneServer.CreateApp<DownloadUpdateApp>(url);
+		app.InitUpdate(url, byteSize);
+
+		AppCloseForce();
+	}
+}

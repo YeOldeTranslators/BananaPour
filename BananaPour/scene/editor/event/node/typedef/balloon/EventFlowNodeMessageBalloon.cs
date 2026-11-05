@@ -1,0 +1,294 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Godot;
+
+using BananaPour.Project;
+using BananaPour.Scene.EditorMsbt;
+using BananaPour.Scene.EditorWorld;
+
+using Nindot;
+using Nindot.Al.EventFlow;
+using Nindot.LMS.Msbt.TagLib.Smo;
+
+namespace BananaPour.Scene.EditorEvent;
+
+public partial class EventFlowNodeMessageBalloon : EventFlowNodeCommon
+{
+	[Export, ExportGroup("Internal References")]
+	private MsbtPageEditor TextMessagePreview;
+	[Export]
+	private Label LabelTextSource;
+	[Export]
+	protected Button ButtonMessageEdit;
+	[Export]
+	protected Button ButtonMessageRefresh;
+
+	[Export]
+	private VBoxContainer MessageResolverConfig;
+
+	[Export]
+	private OptionBalloonType OptionBalloon;
+	[Export]
+	private OptionSourceType OptionSource;
+	[Export]
+	private CheckBox IsMultiDivide;
+
+	public override void InitContent(Nindot.Al.EventFlow.Node content, Graph graph)
+	{
+		base.InitContent(content, graph);
+
+		// Remove name option button
+		NameOptionButton.QueueFree();
+		NameLineEdit.QueueFree();
+
+		// Setup buttons
+		OptionBalloon.SetupSelection(content.Name);
+		OptionSource.SetupSelection(content.Name);
+		IsMultiDivide.SetPressedNoSignal(content.Name.Contains("MultiDevide"));
+
+		// Setup source selection
+		SetLabelDisplayTextSource();
+	}
+
+	#region Signals
+
+	private void OnBalloonTypeOrSourceModified()
+	{
+		var type = (OptionBalloonType.Options)OptionBalloon.Selected;
+		var src = (OptionSourceType.Options)OptionSource.Selected;
+
+		// If using the IconBalloon type, reset source to default
+		if (type == OptionBalloonType.Options.IconBalloon)
+		{
+			src = OptionSourceType.Options.Path;
+			OptionSource.Selected = (int)src;
+			OptionSource.Disabled = true;
+		}
+		else
+		{
+			OptionSource.Disabled = false;
+		}
+
+		UpdateNodeName(type, src);
+	}
+
+	private void OnToggleMultiDivide(bool state)
+	{
+		SetNodeModified();
+
+		// Update node name
+		OnBalloonTypeOrSourceModified();
+
+		// Update content connection list
+		if (Content.Name.EndsWith("MultiDevide"))
+		{
+			Content.CaseEventList ??= new();
+			for (int i = 0; i < Connections.Length; i++)
+				Content.TrySetNextNode((Connections[i] as EventFlowNodeCommon)?.Content, i);
+		}
+		else
+		{
+			Content.CaseEventList = null;
+			if (Connections.Length != 0)
+			{
+				var con = (Connections[0] as EventFlowNodeCommon)?.Content;
+				if (con != null)
+					Content.TrySetNextNode(con);
+				else
+					Content.RemoveNextNode();
+			}
+		}
+
+		// Update outgoing port nodes
+		var portFirst = PortOutList.GetChildren().First() as PortOut;
+
+		if (state)
+		{
+			if (Connections.Length == 2)
+				return;
+
+			CreatePortOut();
+			portFirst.PortColor = PortColorList[portFirst.Index];
+
+			if (Connections.Length == 0)
+				return;
+
+			var listSize2 = new List<EventFlowNodeCommon>
+			{
+				(EventFlowNodeCommon)Connections[0],
+				null
+			};
+
+			SetupConnections(listSize2);
+			return;
+		}
+
+		if (Connections.Length < 2)
+			return;
+
+		// Remove connection from last port
+		var lastPort = PortOutList.GetChildren().Last() as PortOut;
+		lastPort.Connection = null;
+		lastPort.QueueFree();
+
+		var newList = new EventFlowNodeCommon[1];
+		newList[0] = Connections[0];
+		Connections = newList;
+
+		if (Connections.Length == 1)
+			Content.TrySetNextNode((Connections[0] as EventFlowNodeCommon)?.Content);
+
+		portFirst.PortColor = DefaultPortOutColor;
+		DrawDebugLabel();
+	}
+
+	private void OnSelectNewTextSource()
+	{
+		var popup = SceneCreator<PopupMsbtSelectEntry>.Create();
+		GetTree().CurrentScene.AddChild(popup);
+		popup.Popup();
+
+		popup.Connect(PopupMsbtSelectEntry.SignalName.ItemSelected, Callable.From(
+			new Action<string, string, string>(OnNewTextSourceSelectedFromPopup)
+		));
+	}
+
+	private void OnNewTextSourceSelectedFromPopup(string arc, string file, string label)
+	{
+		// Setup text resolver
+		arc = arc.RemoveFileExtension();
+		file = file.RemoveFileExtension();
+
+		Content.TrySetParam("Text", new NodeMessageResolverData(arc, file, label));
+		SetLabelDisplayTextSource();
+
+		SetNodeModified();
+	}
+
+	protected void OnTextPreviewEditCurrent()
+	{
+		if (!Content.TryGetParam("Text", out NodeMessageResolverData msg))
+			return;
+
+		if (!IsContainMessageResolver())
+			return;
+
+		_ = AppSceneServer.CreateOrOpenMsbtLabel(msg);
+	}
+	protected void OnTextPreviewRefreshCurrent()
+	{
+		SetLabelDisplayTextSource();
+	}
+
+	#endregion
+
+	#region Utilities
+
+	private void UpdateNodeName(OptionBalloonType.Options type, OptionSourceType.Options source)
+	{
+		string name = "Message";
+
+		switch (type)
+		{
+			case OptionBalloonType.Options.MiniBalloon:
+				name += "Balloon";
+				break;
+			case OptionBalloonType.Options.TalkBalloon:
+				name += "TalkBalloon";
+				break;
+			case OptionBalloonType.Options.IconBalloon:
+				name = "IconBalloon";
+				break;
+		}
+
+		switch (source)
+		{
+			case OptionSourceType.Options.MapUnit:
+				name += "MapUnit";
+				break;
+			case OptionSourceType.Options.Tutorial:
+				name += "Tutorial";
+				break;
+		}
+
+		if (IsMultiDivide.ButtonPressed) name += "MultiDevide";
+
+		OnSetName(name);
+
+		SetLabelDisplayTextSource();
+		SetNodeModified();
+	}
+
+	private void SetLabelDisplayTextSource()
+	{
+		MessageResolverConfig.Visible = IsSupportMessageResolver();
+
+		Content.TryGetParam("Text", out NodeMessageResolverData msg);
+
+		if (!IsContainMessageResolver())
+		{
+			LabelTextSource.Modulate = Colors.Crimson;
+			LabelTextSource.Text = Tr("EVENT_FLOW_NODE_MESSAGE_TALK_SOURCE_PLACEHOLDER");
+
+			ButtonMessageEdit.Disabled = true;
+			ButtonMessageRefresh.Disabled = true;
+			return;
+		}
+
+		LabelTextSource.Modulate = Colors.LightSkyBlue;
+		LabelTextSource.Text = msg.LabelName;
+		LabelTextSource.TooltipText = string.Format("{0}/{1}/{2}",
+			msg.MessageArchive,
+			msg.MessageFile,
+			msg.LabelName
+		);
+
+		// Setup preview box
+		var holder = ProjectManager.GetMSBTArchives();
+		SarcFile arc = holder.GetArchiveByFileName(msg.MessageArchive);
+		var msbt = arc.GetFileMSBT(msg.MessageFile + ".msbt", new MsbtElementFactoryProjectSmo());
+
+		var entry = msbt.GetEntry(msg.LabelName);
+		if (entry == null)
+		{
+			LabelTextSource.Modulate = Colors.Crimson;
+			LabelTextSource.Text = Tr("INVALID_BODY_WARNING", "EVENT_NODE_MESSAGE_RESOLVER_CONFIG");
+			return;
+		}
+
+		switch(entry.Pages.Count)
+		{
+			case 0:
+				TextMessagePreview.Text = "";
+				break;
+			case 1:
+				TextMessagePreview.Init(null, entry.Pages[0]);
+				break;
+			default:
+				TextMessagePreview.Init(null, entry.Pages[0]);
+				break;
+		}
+
+		ButtonMessageEdit.Disabled = false;
+		ButtonMessageRefresh.Disabled = false;
+	}
+
+	private bool IsSupportMessageResolver()
+	{
+		var type = (OptionBalloonType.Options)OptionBalloon.Selected;
+		var src = (OptionSourceType.Options)OptionSource.Selected;
+
+		return type == OptionBalloonType.Options.MiniBalloon && src == OptionSourceType.Options.Path;
+	}
+
+	private bool IsContainMessageResolver()
+	{
+		if (!Content.TryGetParam("Text", out NodeMessageResolverData msg))
+			return false;
+
+		return msg.MessageArchive != string.Empty && msg.MessageFile != string.Empty && msg.LabelName != string.Empty;
+	}
+
+	#endregion
+}

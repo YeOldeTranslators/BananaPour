@@ -1,0 +1,38 @@
+using Godot;
+
+namespace BananaPour.Scene.EditorEvent;
+
+[SceneUid("uid://btudirexgoe1r")]
+public partial class ParamEditorFloat : EventNodeParamEditorBase
+{
+	[Export]
+	private SpinBox Spin;
+
+	public override void Init()
+	{
+		Spin.Prefix = Param.SplitCamelCase();
+
+		if (!Node.Content.TryGetParam(Param, out float value))
+		{
+			Spin.Editable = false;
+			return;
+		}
+
+		ButtonAddProperty.QueueFree();
+		Spin.SetValueNoSignal(value);
+	}
+
+	public override void AddPropertyToNode()
+	{
+		base.AddPropertyToNode();
+
+		Spin.Editable = true;
+		SetValue(0);
+	}
+
+	private void SetValue(float value)
+	{
+		Node.Content.TrySetParam(Param, value);
+		OnPropertyModified();
+	}
+}

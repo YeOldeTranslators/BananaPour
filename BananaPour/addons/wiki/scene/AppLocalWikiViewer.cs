@@ -1,0 +1,45 @@
+using Godot;
+using System.Linq;
+
+namespace BananaPour.Scene;
+
+[SceneUid("uid://cgpdfqa825020"), Icon("res://asset/app/icon/wiki.png")]
+public partial class AppLocalWikiViewer : AppScene
+{
+	public string FilePath { get; private set; } = "";
+
+	[Export, ExportGroup("Internal References")]
+	private RichTextLabel Markdown;
+	[Export]
+	private Tree Browser;
+
+	public void SetupWikiApp() { Browser.Call("set_selection", FilePath); }
+
+    public override string GetUniqueIdentifier(string input) { return FilePath + input; }
+
+	public void SetResource(string resPath, string localPath)
+	{
+		AppTaskbarTitle = localPath.Split(['/', '\\']).Last();
+		FilePath = resPath;
+	}
+
+	private void OnFileSelected(string path, bool isUpdateTree)
+	{
+		var local = EngineSettings.GetSetting<string>("bananapour/wiki/local_source", "res://docs/");
+		SetResource(path, path.TrimPrefix(local));
+
+		if (isUpdateTree)
+			Browser.Call("set_selection", FilePath);
+		else
+			Markdown.Call("setup_app", path);
+	}
+
+	private void OnOpenRemoteDocument()
+	{
+		var local = EngineSettings.GetSetting<string>("bananapour/wiki/local_source", "res://docs/");
+		var remote = EngineSettings.GetSetting<string>("bananapour/wiki/remote_source", 
+			"https://github.com/Amethyst-szs/BananaPour/tree/stable/BananaPour/docs/");
+		
+		OS.ShellOpen(remote + FilePath.TrimPrefix(local));
+	}
+}

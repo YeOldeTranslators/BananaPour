@@ -1,0 +1,27 @@
+---
+tags:
+  - backend
+---
+# Repository Outline
+Before working on contributing to the repository, it's important to know what each project's purpose and tasks are.
+
+## BananaPour
+Likely the most important project of the entire repository, the `BananaPour` directory. This contains the [Godot Engine](https://godotengine.org/) project and all of the user interface, along with lots of other vital utilities and functionalities. This is also the project that contains the documentation, as to make it easily accessible from the in-app documentation tool.
+
+For most simple or high-level pull requests and changes, this directory is your target!
+
+## BananaPour.Project
+`BananaPour.Project` is a required dependency of `BananaPour` and stores all of the components that make up a user-created project. Note that the actual project manager and project state are stored in the main `BananaPour` directory, only the individual components and utilities are stored here. This primarily serves as a mid-level interfacing between `BananaPour` and the lower level `Nindot` projects.
+
+## Nindot
+`Nindot` is the birthplace of BananaPour, the foundation that the rest of the application is built up upon. This project serves as a low-level interface with the raw Nintendo file formats and exposing them for using in Godot C# projects like BananaPour. Unlike the `BananaPour` project, `Nindot` is not designed to be exclusively for Super Mario Odyssey, though is heavily specialized for Odyssey. Most systems are built upon a factory system, which would allow the code to be used for other games if a new factory was developed for that specific game.
+
+Changes to this library are far more technical and precise, featuring zero UI and very little high-level API access.
+
+## Nindot.Tests
+A test library for the `Nindot` project. These tests can be run locally (with additional tests if a Super Mario Odyssey v1.0.0-v1.3.0[^1] romfs path is provided) and are also run by GitHub actions to ensure stability in `Nindot`.
+
+[^1]: v1.4.0 and v1.4.1 do not have tests because they are identicial to v1.3.0 on the original Nintendo Switch system.
+
+## Godot.Extension
+A side-library built as a dependency for `BananaPour`, featuring little more than extension methods for the `GodotSharp` classes and nodes.

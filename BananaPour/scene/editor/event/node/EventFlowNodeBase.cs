@@ -1,0 +1,322 @@
+using Godot;
+using Godot.Collections;
+using System;
+using System.Collections.Generic;
+
+using Nindot.Al.EventFlow;
+
+using BananaPour.Project;
+
+namespace BananaPour.Scene.EditorEvent;
+
+[SceneUid("uid://0cdy5iuxlvqd")]
+public partial class EventFlowNodeBase : Node2D
+{
+	#region Properties
+
+	// ~~~~~~~~~~~ Node References ~~~~~~~~~~~ //
+
+	public GraphCanvas Parent { get; protected set; } = null;
+
+	// ~~~~~~~~~~~~~~~~~ Data ~~~~~~~~~~~~~~~~ //
+
+	public Graph Graph { get; protected set; } = null;
+	public EventFlowApp Application { get; protected set; } = null;
+	public GraphMetaBucketNode Metadata { get; protected set; } = null;
+
+	// ~~~~~~~~~~~~ Editor Config ~~~~~~~~~~~~ //
+
+	[Export, ExportGroup("Ports")]
+	public bool IsUseMessagePorts { get; private set; } = false;
+	[Export]
+	protected Color DefaultPortOutColor = Colors.White;
+	[Export]
+	protected Array<Color> PortColorList = [];
+
+	// ~~~~~~~~~ Internal References ~~~~~~~~~ //
+
+	[Export, ExportGroup("Internal References")]
+	public PortIn PortIn { get; protected set; }
+	[Export]
+	public VBoxContainer PortOutList { get; private set; }
+
+	[Export]
+	public PanelContainer RootPanel { get; private set; }
+	[Export]
+	protected Panel SelectionPanel { get; private set; }
+
+	[Export]
+	protected Label EditorCommentDisplay { get; private set; }
+	[Export]
+	protected Label DebugDataDisplay { get; private set; }
+
+	// ~~~~~~~~~~~~~~ Selection ~~~~~~~~~~~~~~ //
+
+	private bool _isSelected = false;
+
+	[Export, ExportGroup("State")]
+	public bool IsSelected
+	{
+		get { return _isSelected; }
+		private set
+		{
+			if (value == _isSelected)
+				return;
+
+			_isSelected = value;
+			SelectionPanel.Visible = value;
+
+			OnNodeSelectionStateChanged(value);
+		}
+	}
+
+	public Vector2 RawPosition;
+
+	// ~~~~~~~~~~~~~~ Callables ~~~~~~~~~~~~~~ //
+
+	private Callable CallDragged;
+	private Callable CallDragEnded;
+
+	// ~~~~~~~~~~~~~~~ Signals ~~~~~~~~~~~~~~~ //
+
+	[Signal]
+	public delegate void NodeMovedEventHandler();
+	[Signal]
+	public delegate void NodeModifiedEventHandler();
+
+	#endregion
+
+	#region Initilization
+
+	public override void _Ready()
+	{
+		// Check type to ensure base isn't being initilized
+		// Godot doesn't properly support abstract classes so this has to be a runtime check
+		if (GetType() == typeof(EventFlowNodeBase))
+			throw new Exception("Base class should not be constructed!");
+
+		Application = this.FindParentByType<EventFlowApp>();
+		Parent = this.FindParentByType<GraphCanvas>();
+
+		// Connect to signals from graph
+		Connect(SignalName.NodeModified, Callable.From(Parent.OnNodeModified));
+		Parent.Connect(GraphCanvas.SignalName.DeselectAll, Callable.From(OnNodeDeselected));
+		Parent.Connect(GraphCanvas.SignalName.SelectAll, Callable.From(OnNodeSelected));
+
+		InitCallables();
+
+		//// TODO: Remove this?
+		// Setup node position
+		// RawPosition = new Vector2(
+		// 	MathF.Floor(Position.X / PositionSnapSize) * PositionSnapSize,
+		// 	MathF.Floor(Position.Y / PositionSnapSize) * PositionSnapSize
+		// );
+
+		// Position = RawPosition;
+
+		// Hide selection panel
+		SelectionPanel.Hide();
+
+		// Setup debug label in extras panel
+		SetEditorComment("");
+		DebugDataDisplay.Hide();
+
+		if (OS.IsDebugBuild())
+			Parent.Connect(GraphCanvas.SignalName.ToggleDebugDataView, Callable.From(new Action<bool>(SetDebugVisiblity)));
+	}
+
+	private void InitCallables()
+	{
+		CallDragged = Callable.From(new Action<Vector2>(OnNodeDragged));
+		CallDragEnded = Callable.From(OnNodeDragEnded);
+	}
+
+	public virtual void InitContent(Nindot.Al.EventFlow.Node content, Graph graph) { }
+	public virtual void InitContent(string entryName, Graph graph, EventFlowNodeCommon target) { }
+	public virtual void SetupConnections(List<EventFlowNodeCommon> list) { }
+	protected virtual void InitParamEditor() { }
+
+	public virtual bool InitContentMetadata(GraphMetaBucketCommon holder, GraphMetaBucketNode data)
+	{
+		bool isNull = data == null;
+		if (isNull)
+			data = new();
+
+		Metadata = data;
+
+		RawPosition = Metadata.Position;
+		Position = Metadata.Position;
+		EmitSignal(SignalName.NodeMoved);
+
+		SetEditorComment(data.Comment);
+		SetNodeColor();
+
+		DrawDebugLabel();
+		return !isNull;
+	}
+
+	protected virtual PortOut CreatePortOut()
+	{
+		var outPort = SceneCreator<PortOut>.Create();
+		PortOutList.AddChild(outPort);
+
+		outPort.Connect(PortOut.SignalName.PortConnected, Callable.From(
+			new Action<PortOut, PortIn>(OnConnectionChanged)
+		));
+
+		outPort.PortColor = DefaultPortOutColor;
+		return outPort;
+	}
+
+	#endregion
+
+	#region Selection
+
+	public void SetSelected() { OnNodeSelected(false); }
+	public void SetSelectedMulti() { OnNodeSelected(true); }
+	private void OnNodeSelected() { OnNodeSelected(true); }
+	private void OnNodeSelected(bool isMultiselect)
+	{
+		if (IsSelected) return;
+
+		if (!isMultiselect)
+		{
+			Parent.EmitSignal(GraphCanvas.SignalName.DeselectAll);
+
+			var hold = Application.GraphNodeHolder;
+			hold.MoveChild(this, hold.GetChildCount() - 1);
+		}
+
+		IsSelected = true;
+	}
+
+	private void OnNodeDeselected()
+	{
+		if (!IsSelected) return;
+		IsSelected = false;
+	}
+
+	private void OnNodeSelectionStateChanged(bool isSelected)
+	{
+		Parent.TryUpdateSignal(GraphCanvas.SignalName.DragSelection, isSelected, CallDragged);
+		Parent.TryUpdateSignal(GraphCanvas.SignalName.DragSelectionEnded, isSelected, CallDragEnded);
+	}
+
+	private void OnNodeColliderDragged(Vector2 dist)
+	{
+		Parent.DragSelectedNodes(dist);
+	}
+
+	private void OnNodeColliderDragEnded()
+	{
+		Parent.DragSelectedNodesEnd();
+	}
+
+	private void OnNodeDragged(Vector2 dist)
+	{
+		Vector2 oldPos = Position;
+		RawPosition += dist;
+		Position = CalcPositionSnapToGrid(RawPosition);
+
+		Metadata.Position = Position;
+
+		if (Position != oldPos)
+		{
+			EmitSignal(SignalName.NodeMoved);
+			SetNodeModified();
+		}
+
+		DrawDebugLabel();
+	}
+
+	private void OnNodeDragEnded()
+	{
+		RawPosition = CalcPositionSnapToGrid(RawPosition);
+		DrawDebugLabel();
+	}
+
+	public void OffsetPosition(Vector2 offset) { OnNodeDragged(offset); }
+	public void OffsetPositionX(float offset) { OnNodeDragged(new Vector2(offset, 0)); }
+	public void OffsetPositionY(float offset) { OnNodeDragged(new Vector2(0, offset)); }
+
+	public new void SetPosition(Vector2 pos)
+	{
+		Vector2 oldPos = Position;
+		RawPosition = pos;
+		Position = CalcPositionSnapToGrid(RawPosition);
+
+		Metadata.Position = Position;
+
+		if (Position != oldPos)
+		{
+			EmitSignal(SignalName.NodeMoved);
+			SetNodeModified();
+		}
+
+		DrawDebugLabel();
+	}
+
+	private async void OnNodeResized()
+	{
+		await Extension.WaitProcessFrame(this);
+		EmitSignal(SignalName.NodeMoved);
+	}
+
+	#endregion
+
+	#region Signals
+
+	protected virtual void OnConnectionChanged(PortOut port, PortIn connection) { }
+	public virtual void DeleteNode() { }
+
+	protected void SetDebugVisiblity(bool isActive)
+	{
+		if (IsInstanceValid(DebugDataDisplay))
+			DebugDataDisplay.Visible = isActive;
+	}
+
+	#endregion
+
+	#region Utility
+
+	public Rect2 GetRect() { return new Rect2(Position, RootPanel.Size); }
+
+	public void SetNodeModified() { EmitSignal(SignalName.NodeModified); }
+
+	public void SetEditorComment(string comment)
+	{
+		EditorCommentDisplay.Visible = comment != string.Empty;
+		EditorCommentDisplay.Text = comment;
+
+		if (Metadata != null)
+			Metadata.Comment = comment;
+
+		SetNodeModified();
+	}
+	public virtual void SetNodeColor()
+	{
+		if (Metadata.IsOverrideColor)
+			RootPanel.SelfModulate = Metadata.OverrideColor;
+	}
+
+	protected virtual void DrawDebugLabel() { }
+	protected static string AppendDebugLabel(string property, object value)
+	{
+		if (value == null)
+			return property + ": " + "null\n";
+		
+		return property + ": " + value.ToString() + "\n";
+	}
+
+	private static Vector2 CalcPositionSnapToGrid(Vector2 pos)
+	{
+		float snapSize = EngineSettings.GetSetting<float>("bananapour/event_graph/grid_snap_size", 16.0f);
+
+		Vector2 snapPos;
+		snapPos.X = MathF.Floor(pos.X / snapSize) * snapSize;
+		snapPos.Y = MathF.Floor(pos.Y / snapSize) * snapSize;
+		return snapPos;
+	}
+
+	#endregion
+}

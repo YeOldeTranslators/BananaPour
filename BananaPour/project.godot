@@ -1,0 +1,299 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="BananaPour"
+config/description="A Super Mario Odyssey project management & mod development tool"
+config/tags=PackedStringArray("action_library")
+run/main_scene="res://scene/main/main.tscn"
+run/print_header=false
+config/project_settings_override="user://common.cfg"
+config/auto_accept_quit=false
+config/quit_on_go_back=false
+config/features=PackedStringArray("4.7", "C#", "Forward Plus")
+run/low_processor_mode=true
+run/low_processor_mode_sleep_usec=10000
+boot_splash/bg_color=Color(0.054902, 0.0745098, 0.105882, 1)
+boot_splash/stretch_mode=0
+boot_splash/image="res://icon.png"
+config/icon="res://iconS.png"
+
+[autoload]
+
+DisplayServerUtility="*res://scene/settings/engine/global/display_server_utility.gd"
+AutoloadInit="*res://addons/AutoloadInit.cs"
+EngineSettings="*res://scene/settings/engine/global/engine_setting_holder.gd"
+ScreenshotCapture="*res://scene/common/screenshot/screenshot_capture.gd"
+
+[bananapour]
+
+event_graph/disable_background=false
+general/locale="en"
+event_graph/sensitivity_zoom=0.1
+event_graph/sensitivity_pan_x=1.0
+event_graph/sensitivity_pan_y=1.0
+general/taskbar_height=30.0
+version/update_user="Amethyst-szs"
+version/update_repo="BananaPour"
+version/update_domain_api="https://api.github.com/repos"
+version/update_domain_api_headers=PackedStringArray("Accept: application/vnd.github+json", "X-GitHub-Api-Version: 2022-11-28")
+general/world_list_shader=true
+wiki/remote_source="https://github.com/Amethyst-szs/BananaPour/tree/stable/BananaPour/docs/"
+wiki/local_source="res://docs/"
+wiki/is_use_local=true
+wiki/is_display_toggle_notice=true
+localization/translation_language="USen"
+localization/translation_features_tab=false
+wiki/home_repository="https://github.com/Amethyst-szs/BananaPour"
+wiki/support_url="https://ko-fi.com/amethystszs"
+version/main_branch="stable"
+event_graph/hide_block_tooltip=false
+version/repo_releases_url="https://github.com/Amethyst-szs/BananaPour/releases"
+general/proj_history=PackedStringArray()
+
+[dotnet]
+
+project/assembly_name="BananaPour"
+project/solution_directory="res://../"
+
+[editor]
+
+run/main_run_args="-- --launchmode=default"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/SmoothScroll/plugin.cfg", "res://addons/git_database/plugin.cfg", "res://addons/markdownlabel/plugin.cfg", "res://addons/mfgraph_resource/plugin.cfg", "res://addons/podb/plugin.cfg", "res://addons/wiki/plugin.cfg")
+
+[file_customization]
+
+folder_colors={
+"res://addons/": "pink",
+"res://asset/": "orange",
+"res://async/": "gray",
+"res://docs/": "yellow",
+"res://lang/": "yellow",
+"res://project/": "gray",
+"res://scene/": "blue",
+"res://scene/dev/": "gray",
+"res://scene/editor/": "purple",
+"res://scene/front_door/": "teal",
+"res://scene/home/": "teal",
+"res://scene/home/tools/": "green",
+"res://scene/settings/": "teal",
+"res://scene/version/": "teal"
+}
+
+[gui]
+
+timers/tooltip_delay_sec=0.07
+
+[importer_defaults]
+
+nindot.msbt={
+"tag_library": 1
+}
+
+[input]
+
+ui_text_caret_word_left.macos={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":true,"shift_pressed":false,"pressed":false,"keycode":4194319,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_text_caret_word_right.macos={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":true,"shift_pressed":false,"pressed":false,"keycode":4194321,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_add_tag={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":84,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_edit_tag={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":true,"pressed":false,"keycode":84,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_save={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":83,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_find={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":70,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_find_search={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":true,"pressed":false,"keycode":70,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+msbt_add_entry={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":78,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+msbt_delete_entry={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":true,"pressed":false,"keycode":4194312,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_close_app={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":87,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_save_as={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":true,"pressed":false,"keycode":83,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+dot_playable_left={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":65,"key_label":0,"unicode":97,"location":0,"echo":false,"script":null)
+, Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":-1,"axis":0,"axis_value":-1.0,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"button_index":13,"pressure":0.0,"pressed":false,"script":null)
+]
+}
+dot_playable_right={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":68,"key_label":0,"unicode":100,"location":0,"echo":false,"script":null)
+, Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":-1,"axis":0,"axis_value":1.0,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"button_index":14,"pressure":0.0,"pressed":false,"script":null)
+]
+}
+dot_playable_up={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":87,"key_label":0,"unicode":119,"location":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":32,"key_label":0,"unicode":32,"location":0,"echo":false,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"button_index":0,"pressure":0.0,"pressed":false,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"button_index":1,"pressure":0.0,"pressed":false,"script":null)
+]
+}
+dot_playable_down={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":83,"key_label":0,"unicode":115,"location":0,"echo":false,"script":null)
+, Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":-1,"axis":1,"axis_value":1.0,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"button_index":12,"pressure":0.0,"pressed":false,"script":null)
+]
+}
+home_actionbar_reload={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":true,"shift_pressed":false,"pressed":false,"keycode":82,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+home_actionbar_close={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":true,"shift_pressed":false,"pressed":false,"keycode":87,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_save_all={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":true,"shift_pressed":false,"pressed":false,"keycode":83,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_toggle_debug={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":true,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":68,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_graph_inject={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":true,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":65,"physical_keycode":0,"key_label":0,"unicode":65,"location":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":78,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_graph_reset_zoom={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":32,"physical_keycode":0,"key_label":0,"unicode":32,"location":0,"echo":false,"script":null)
+]
+}
+ui_refresh={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":82,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_new_archive={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":true,"pressed":false,"keycode":78,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_rename={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194333,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_screenshot={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":4194343,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_graph_step_by_step_debug={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194334,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_app_nav_left={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":true,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194319,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":true,"pressed":false,"keycode":4194306,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_app_nav_right={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":true,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194321,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":4194306,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_app_nav_home={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":true,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194322,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":true,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194317,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_help={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194332,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+msbt_reset_entry={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":true,"pressed":false,"keycode":82,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+msbt_filter_modified={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":true,"meta_pressed":false,"pressed":false,"keycode":77,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_graph_select_all={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"command_or_control_autoremap":true,"alt_pressed":false,"shift_pressed":false,"pressed":false,"keycode":65,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+
+[internationalization]
+
+locale/translation_remaps={}
+locale/translations=PackedStringArray("res://lang/en.mo")
+locale/translations_pot_files=PackedStringArray("res://scene/settings/romfs/romfs_accessor_config_app.tscn", "res://scene/settings/romfs/path_display.tscn", "res://scene/front_door/front_door.tscn", "res://scene/editor/msbt/entry/components/msbt_entry_page_holder.tscn", "res://scene/editor/msbt/entry/components/msbt_entry_page_separator.tscn", "res://scene/front_door/load/project_loading.tscn", "res://scene/editor/msbt/entry/components/msbt_entry_translation_config.tscn", "res://scene/home/home.tscn", "res://scene/editor/msbt/tag_edit/default/fallback.tscn", "res://scene/editor/msbt/wheel/tag_wheel.tscn", "res://scene/editor/msbt/wheel/picture/submenu_pict.tscn", "res://scene/editor/msbt/wheel/device/submenu_device.tscn", "res://scene/editor/msbt/tag_edit/system/font.tscn", "res://scene/editor/msbt/tag_edit/system/font_size.tscn", "res://scene/editor/msbt/tag_edit/eui/wait.tscn", "res://scene/editor/msbt/tag_edit/se/voice.tscn", "res://scene/editor/msbt/tag_edit/system/ruby.tscn", "res://scene/editor/msbt/tag_edit/system/color.tscn", "res://scene/editor/msbt/tag_edit/eui/speed.tscn", "res://scene/editor/msbt/tag_edit/number/number_figure.tscn", "res://scene/editor/msbt/tag_edit/number/number_time.tscn", "res://scene/editor/msbt/tag_edit/anim/text.tscn", "res://scene/editor/msbt/tag_edit/string/string.tscn", "res://scene/editor/msbt/tag_edit/time/component.tscn", "res://scene/editor/msbt/tag_edit/align/text.tscn", "res://scene/editor/msbt/tag_edit/grammar/caping.tscn", "res://scene/editor/msbt/msbt_editor.tscn", "res://scene/editor/msbt/list/entry_list_holder.tscn", "res://scene/home/tools/world/tab_world.tscn", "res://scene/editor/world/world_editor_app.tscn", "res://scene/front_door/contributor/scene/credit.tscn", "res://scene/editor/msbt/list/container/stage_message_category_table.gd", "res://scene/home/tools/msbt/popup_msbt_create.tscn", "res://scene/home/tools/msbt/popup_msbt_create.gd", "res://scene/editor/event/node/node_type_name_text.tres", "res://scene/editor/event/node/typedef/talk/talk.tscn", "res://scene/home/tools/event/tab_event.tscn", "res://scene/editor/event/node/typedef/balloon/balloon.tscn", "res://scene/editor/event/node/event_flow_entry_point.tscn", "res://scene/editor/event/node/component/message_resolver_config.tscn", "res://scene/main/main.tscn", "res://scene/editor/event/node/typedef/balloon/message_balloon_options.tres", "res://scene/editor/event/inject/popup_inject_graph_node.tscn", "res://scene/editor/event/event_flow_app.tscn", "res://scene/settings/engine/engine_settings_app.tscn", "res://scene/settings/engine/page/general.tscn", "res://scene/editor/event/node/typedef/flow/entry_point_jump.tscn", "res://scene/editor/event/node/typedef/flow/fork.tscn", "res://scene/settings/engine/page/graph.tscn", "res://scene/editor/msbp/color/msbp_color_editor.tscn", "res://scene/editor/msbp/color/color_editor_element.tscn", "res://scene/editor/msbp/color/color_editor_element_preview.tscn", "res://scene/editor/event/node/event_flow_node_common.tscn", "res://scene/home/tools/event/home_tab_event_tooltip_translation_text.tres", "res://scene/editor/world/shine/world_shine_editor_holder.tscn", "res://scene/editor/world/shine/world_shine_editor.tscn", "res://addons/podb/input_map.tres", "res://scene/settings/engine/keybind/overlay_keybind_capture.tscn", "res://scene/settings/engine/page/keybind.tscn", "res://scene/app/components/dialog_unsaved_changes.tscn", "res://scene/front_door/contributor/asset.tres", "res://scene/front_door/contributor/dev-csharp.tres", "res://scene/front_door/contributor/dev-gdscript.tres", "res://scene/front_door/contributor/godot.tres", "res://scene/front_door/contributor/module-csharp.tres", "res://scene/front_door/contributor/module-godot.tres", "res://scene/common/screenshot/screenshot_capture.gd", "res://lang/db/event_category_table_translation_text.tres", "res://lang/db/language_code_to_text.tres", "res://scene/editor/event/meta/popup_event_metadata.tscn", "res://scene/editor/msbt/page/text_placeholder_page_editor.tres", "res://scene/editor/msbt/components/dialog_language_change_unsaved.tscn", "res://scene/editor/msbt/list/label/entry_label_button_tooltip_text.tres", "res://lang/db/header_tooltip.tres", "res://scene/editor/event/block/event_block_panel.tscn", "res://scene/home/guide/home_guide.tscn", "res://scene/front_door/ui/quickbar_error_label.gd", "res://addons/wiki/scene/app_local_wiki_viewer.tscn", "res://addons/wiki/scene/wiki_button_tooltip_text_bank.tres", "res://scene/front_door/load/exception/msbt_entry_parser_exception.tscn", "res://scene/front_door/load/component/loading_message_text.tres", "res://scene/editor/world/general/vbox_basic_info.tscn", "res://scene/editor/world/general/vbox_scenario_info.tscn", "res://scene/editor/world/general/tab_general.tscn", "res://scene/version/download/download_update_app.tscn", "res://scene/version/replace_old/replace_old_version_app.tscn", "res://scene/version/notify/version_tooltip.tscn", "res://scene/settings/engine/ftp/ftp_connection_status_message_text.tres", "res://scene/settings/engine/page/ftp.tscn", "res://scene/main/header/ftp/ftp_status_indicator.tscn", "res://scene/main/header/ftp/ftp_status_indicator_tooltip_message_text.tres", "res://scene/front_door/recent/recent_entry_panel.tscn", "res://scene/front_door/recent/recent_sidebar.tscn", "res://scene/home/common/file_search_and_filter.tscn", "res://scene/settings/engine/keybind/panel_keybind_editor.tscn", "res://scene/editor/world/map/tab_map.tscn", "res://scene/editor/world/map/scenario/popup_scenario.tscn", "res://scene/editor/world/stage/edit_stage_info.tscn", "res://scene/editor/world/stage/world_editor_tab_stages.tscn", "res://scene/settings/engine/page/world.tscn", "res://scene/home/tools/msbt/tab_msbt_base.tscn", "res://scene/home/tools/project/tab_project.tscn", "res://async/gui/async_display.tscn", "res://async/gui/async_text.tres", "res://scene/home/actionbar/actionbar_home_find.tscn", "res://scene/main/header/actionbar/global/actionbar_debug.tscn", "res://scene/main/header/actionbar/global/actionbar_file.tscn", "res://scene/main/header/actionbar/global/actionbar_help.tscn", "res://scene/main/header/actionbar/global/actionbar_project.tscn", "res://scene/common/msbt_lookup/select_entry/popup_msbt_select_entry.tscn", "res://scene/common/msbt_lookup/select_entry/popup_msbt_select_entry_only_label.tscn", "res://scene/common/msbt_lookup/find_search/popup_msbt_find_search_entry.tscn", "res://scene/editor/msbt/list/label/entry_label_button.tscn", "res://scene/editor/event/node/component/message_resolve_config_txt.tres", "res://scene/editor/msbt/actionbar/actionbar_msbt_extra.tscn", "res://scene/editor/msbt/components/window_mass_add_labels.tscn", "res://asset/shader/graph/background/graph_background_mat.tres", "res://scene/home/tools/project/subtab_config_info.tscn", "res://scene/home/tools/project/subtab_extra_tools.tscn", "res://scene/home/tools/project/subtab_extensions.tscn", "res://scene/home/tools/project/common/extension_toggle_panel.tscn")
+pseudolocalization/override=true
+
+[layer_names]
+
+2d_render/layer_2="SphereRender"
+2d_physics/layer_1="GraphSelection"
+2d_physics/layer_2="GraphNode"
+2d_physics/layer_3="GraphPortIn"
+2d_physics/layer_4="GraphPortOutGrabbed"
+2d_physics/layer_5="WorldShineEditor"

@@ -1,0 +1,23 @@
+---
+tags:
+  - tools
+---
+# BananaPour Command Line Arguments
+
+## How to use
+Any [Godot Engine command line](https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html) arguments can be provided to the executable when run from source or a compiled release. To use BananaPour-specific arguments documented below, make sure to include the argument `"--"` to mark the start of the user arguments.
+
+## `--project`
+Provide a path for a BananaPour project to open. The home screen will be skipped and it will load directly into the project. If path does not contain a valid BananaPour project, an error will be printed and the home screen will load as normal.
+
+## `--ignore_update_timestamp`
+The automatic updater will always notify of a new version, even if you already have the latest release or newer
+
+## `--launchmode`
+Determines the mode that BananaPour boots in. Valid options:
+
+- `--launchmode=appless`: Launches editor without any app content. Used for debugging.
+
+- `--launchmode=update_debug`: Interface to test automatic update functionality
+- `--launchmode=update_cleanup`: Makes editor clean-up automatic updater remnants before finishing boot.
+- `--launchmode=update_replace`: Internal use only, used for automatic updater

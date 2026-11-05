@@ -1,0 +1,196 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+using Nindot.Al.EventFlow;
+
+using BananaPour.Project;
+
+namespace BananaPour.Scene.EditorEvent;
+
+public static class GraphNodeClipboardServer
+{
+    private static readonly List<Node> Nodes = [];
+    private static readonly Dictionary<int, Godot.Vector2> NodePositions = [];
+    private static readonly Dictionary<int, GraphMetaBucketNode> NodeMeta = [];
+
+    public static void Copy(IList<EventFlowNodeCommon> cNodes)
+    {
+        if (cNodes.Count == 0)
+            return;
+        
+        // Clear current clipboard contents
+        Nodes.Clear();
+        NodePositions.Clear();
+        NodeMeta.Clear();
+
+        // Create a list of all node positions and metadata
+        foreach (var node in cNodes)
+        {
+            NodePositions.Add(node.Content.Id, node.GlobalPosition);
+            NodeMeta.Add(node.Content.Id, node.Metadata.Copy());
+        }
+
+        // Push all node positions to be based on 0,0 origin
+        var lowest = new Godot.Vector2(NodePositions.Min(p => p.Value.X), NodePositions.Min(p => p.Value.Y));
+        
+        foreach (var pos in NodePositions)
+            NodePositions[pos.Key] = pos.Value - lowest;
+
+        // Setup lists
+        var cNodesSrc = cNodes.Select(n => n.Content).ToList();
+
+        // Clone all provided nodes into internal list
+        CloneIntoClipboard(cNodesSrc);
+
+        var ctx = Nodes.Select(n => n.Id).ToList();
+
+        // Remove any connections to nodes that aren't a part of this clipboard selection
+        foreach (var node in Nodes)
+        {
+            var targets = node.GetNextIds();
+            for (int i = 0; i < targets.Length; i++)
+            {
+                if (!ctx.Contains(targets[i]))
+                    node.RemoveNextNode(i);
+            }
+        }
+
+        // Reassign node IDs
+        foreach (var node in Nodes)
+            ctx.Add(ReassignIdsInList(Nodes, node, ctx));
+    }
+
+    public static async Task<List<EventFlowNodeCommon>> Paste(GraphCanvas context)
+    {
+        if (Nodes.Count == 0)
+            return [];
+        
+        // Create a list of ids that exist in the paste context and graph context
+        var ctxNodes = context.Parent.GraphNodeHolder.GetChildren();
+        var ctxIdList = new List<int>();
+        Nodes.ForEach((n) => ctxIdList.Add(n.Id));
+
+        foreach (var node in ctxNodes)
+        {
+            var t = node.GetType();
+            if (!t.IsSubclassOf(typeof(EventFlowNodeBase)) || t == typeof(EventFlowEntryPoint))
+                continue;
+
+            ctxIdList.Add(((EventFlowNodeCommon)node).Content.Id);
+        }
+
+        // Reassign clipboard node ids to not conflict with any ids with any value in the previously created context
+        Nodes.ForEach((n) => ctxIdList.Add(ReassignIdsInList(Nodes, n, ctxIdList)));
+
+        // Insert new data into graph data
+        var graph = context.Graph;
+
+        foreach (var node in Nodes)
+            graph.AddNode(node);
+
+        // Inject new nodes into graph
+        var nodeEditors = new List<EventFlowNodeCommon>();
+
+        foreach (var node in Nodes)
+        {
+            // This returning a null value is okay
+            NodeMeta.TryGetValue(node.Id, out GraphMetaBucketNode metaBucket);
+
+            nodeEditors.Add(context.Parent.InjectNewNode(node, metaBucket.Copy()));
+        }
+
+        await context.ToSignal(Godot.Engine.GetMainLoop(), "process_frame");
+
+        // Setup connections and positions between newly injected nodes
+        var screenSize = context.GetWindow().Size / 2;
+        var factor = Godot.Vector2.One / context.Scale;
+        var offset = (context.Offset * factor) - (screenSize * factor);
+
+        foreach (var node in nodeEditors)
+        {
+            context.Parent.InjectNodeConnections(node);
+
+            if (NodePositions.TryGetValue(node.Content.Id, out Godot.Vector2 vec))
+                node.SetPosition(vec - offset);
+        }
+
+        // Re-clone internal clipboard nodes in case user pastes same clipboard again
+        var list = Nodes.ToArray();
+        Nodes.Clear();
+
+        CloneIntoClipboard(list);
+
+        // Select all newly pasted nodes
+        context.DeselectAllNodes();
+        foreach (var item in nodeEditors)
+            item.SetSelectedMulti();
+
+        // Return list of nodes that got pasted
+        return nodeEditors;
+    }
+
+    public static async void Duplicate(IList<EventFlowNodeCommon> cNodes, GraphCanvas context)
+    {
+        Copy(cNodes);
+        await Paste(context);
+    }
+
+    private static void CloneIntoClipboard(IList<Node> cNodes)
+    {
+        for (int i = 0; i < cNodes.Count; i++)
+        {
+            var source = cNodes[i];
+            var type = source.GetType();
+
+            var copyFactory = type.GetMethod("Clone").MakeGenericMethod(type);
+            var copy = (Node)copyFactory.Invoke(source, []);
+
+            Nodes.Add(copy);
+        }
+    }
+
+    private static int ReassignIdsInList(IList<Node> list, Node node, IList<int> context)
+    {
+        // Find first valid ID that isn't used in the context
+        int? newId = Enumerable.Range(0, int.MaxValue).Except(context).FirstOrDefault();
+        if (newId == null)
+            throw new Exception("Failed to create new node id");
+
+        // Copy down old ID and set node ID
+        var oldId = node.Id;
+
+        node.SetIdUnsafe((int)newId);
+
+        // Iterate through list and reassign all references to the old node ID with the new ID
+        foreach (var cmp in list)
+        {
+            var targets = cmp.GetNextIds();
+            if (!targets.Contains(oldId))
+                continue;
+
+            for (int i = 0; i < targets.Length; i++)
+            {
+                if (targets[i] == oldId)
+                    cmp.TrySetNextNode(node, i);
+            }
+        }
+
+        // Update NodePositions list to match new id
+        if (NodePositions.TryGetValue(oldId, out Godot.Vector2 pos))
+        {
+            NodePositions.Remove(oldId);
+            NodePositions.Add(node.Id, pos);
+        }
+
+        // Update Metadata list to match new id
+        if (NodeMeta.TryGetValue(oldId, out GraphMetaBucketNode metaBucket))
+        {
+            NodeMeta.Remove(oldId);
+            NodeMeta.Add(node.Id, metaBucket);
+        }
+
+        return (int)newId;
+    }
+}

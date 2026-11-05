@@ -1,0 +1,292 @@
+[gd_scene format=3 uid="uid://dx5wrgv3ugohw"]
+
+[ext_resource type="FontFile" uid="uid://ck8hgmw2q13d2" path="res://asset/font/FontRodinEB.otf" id="1_1hk75"]
+[ext_resource type="PackedScene" uid="uid://euc30cq3n857" path="res://scene/settings/engine/common/page_header.tscn" id="1_rui4d"]
+[ext_resource type="Script" uid="uid://ddjtqhdysil2g" path="res://scene/settings/engine/common/common_engine_setting_toggle_boolean.gd" id="2_ihk7t"]
+[ext_resource type="Theme" uid="uid://bbndf5ewp2sd1" path="res://asset/theme/msbt/msbt_editor_theme.tres" id="3_8w1c2"]
+[ext_resource type="Theme" uid="uid://dbung3qmbw5gp" path="res://asset/theme/common/app_common.tres" id="4_4lk4x"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_2x6cb"]
+font = ExtResource("1_1hk75")
+font_size = 19
+
+[sub_resource type="GDScript" id="GDScript_4x0fm"]
+script/source = "extends OptionButton
+
+@onready var list := TranslationServer.get_loaded_locales()
+
+func _ready() -> void:
+	for item in list:
+		add_item(TranslationServer.get_locale_name(item))
+	
+	# Add additional spacing to bottom of dropdown
+	add_item(\"\", 10000)
+	set_item_disabled(get_item_index(10000), true)
+	
+	var idx := list.find(TranslationServer.get_locale())
+	if idx != -1:
+		select(idx)
+	else:
+		select(0)
+	
+	item_selected.connect(_on_item_selected)
+
+func _on_item_selected(idx: int) -> void:
+	var lang := list[idx]
+	
+	TranslationServer.set_locale(lang)
+	print(\"Set application locale to \" + lang)
+	
+	EngineSettings.set_setting(\"bananapour/general/locale\", lang)
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_i8tvi"]
+
+[sub_resource type="GDScript" id="GDScript_sropi"]
+script/source = "extends Button
+
+const util := preload(\"res://scene/settings/engine/global/display_server_utility.gd\")
+
+func _pressed() -> void:
+	util.reset_display_server()
+"
+
+[sub_resource type="GDScript" id="GDScript_7klgf"]
+script/source = "extends \"res://scene/settings/engine/common/common_engine_setting_slide_float.gd\"
+
+func _ready() -> void:
+	super()
+	drag_ended.connect(_on_value_changed_update_instant)
+
+func _on_value_changed_update_instant(_v: float) -> void:
+	get_window().content_scale_factor = value
+"
+
+[sub_resource type="GDScript" id="GDScript_2tifn"]
+script/source = "extends \"res://scene/settings/engine/common/common_engine_setting_slide_float.gd\"
+
+func _ready():
+	super()
+	
+	value_changed.connect(_on_value_changed_for_emit)
+
+func _on_value_changed_for_emit(_v: float) -> void:
+	EngineSettings.taskbar_size_modified.emit()
+"
+
+[sub_resource type="GDScript" id="GDScript_nl872"]
+script/source = "extends OptionButton
+
+const option_tr_context: String = \"ENGINE_SETTINGS_LOW_PROCESSOR_OPTIONS\"
+const key: String = \"application/run/low_processor_mode_sleep_usec\"
+
+var option_list: Dictionary = {
+	0: tr(\"DISABLED\", option_tr_context),
+	2000: tr(\"MINIMAL\", option_tr_context),
+	10000: tr(\"STANDARD\", option_tr_context),
+	50000: tr(\"STRONG\", option_tr_context),
+	100000: tr(\"VERY_STRONG\", option_tr_context),
+}
+
+func _ready():
+	for i in range(option_list.size()):
+		add_item(option_list.values()[i], option_list.keys()[i])
+	
+	var value: int = EngineSettings.get_setting(key, 10000)
+	if option_list.has(value):
+		select(option_list.keys().find(value))
+	else:
+		select(get_item_index(10000))
+	
+	item_selected.connect(_on_item_selected)
+
+func _on_item_selected(idx: int) -> void:
+	var value = option_list.keys()[idx]
+	EngineSettings.set_setting(key, value)
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gn66n"]
+
+[node name="Page_General" type="VBoxContainer" unique_id=1849980518]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 28.0
+grow_horizontal = 2
+
+[node name="Header" parent="." unique_id=1068676584 instance=ExtResource("1_rui4d")]
+layout_mode = 2
+
+[node name="Label_Head" parent="Header/Layout" parent_id_path=PackedInt32Array(1068676584, 209024878) index="0" unique_id=53255930]
+text = "ENGINE_SETTINGS_APP_CATEGORY_GENERAL"
+
+[node name="VBox_Lang" type="VBoxContainer" parent="." unique_id=1015493690]
+layout_mode = 2
+
+[node name="Label_LanguageHeader" type="Label" parent="VBox_Lang" unique_id=1957467290]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "ENGINE_SETTINGS_PAGE_GENERAL_LANGUAGE_HEADER"
+label_settings = SubResource("LabelSettings_2x6cb")
+
+[node name="HSep" type="HSeparator" parent="VBox_Lang" unique_id=591281717]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Label_LocaleHeader" type="Label" parent="VBox_Lang" unique_id=294754195]
+layout_mode = 2
+text = "ENGINE_SETTINGS_PAGE_GENERAL_LOCALE_HEADER"
+
+[node name="Option_Locale" type="OptionButton" parent="VBox_Lang" unique_id=1096819434]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+script = SubResource("GDScript_4x0fm")
+
+[node name="HSep_Spacer" type="HSeparator" parent="VBox_Lang" unique_id=539844889]
+layout_mode = 2
+theme_override_constants/separation = 24
+theme_override_styles/separator = SubResource("StyleBoxEmpty_i8tvi")
+
+[node name="Check_DocSource" type="CheckBox" parent="VBox_Lang" unique_id=1350558599]
+layout_mode = 2
+tooltip_text = "ENGINE_SETTINGS_PAGE_GENERAL_LANGUAGE_DOCUMENTATION_SOURCE_TOOLTIP"
+mouse_default_cursor_shape = 2
+text = "ENGINE_SETTINGS_PAGE_GENERAL_LANGUAGE_DOCUMENTATION_SOURCE"
+script = ExtResource("2_ihk7t")
+key = "bananapour/wiki/is_use_local"
+
+[node name="HSep_Spacer2" type="HSeparator" parent="VBox_Lang" unique_id=213958478]
+layout_mode = 2
+theme_override_constants/separation = 24
+theme_override_styles/separator = SubResource("StyleBoxEmpty_i8tvi")
+
+[node name="VBox_Visual" type="VBoxContainer" parent="." unique_id=1907669538]
+layout_mode = 2
+
+[node name="Label_VisualHeader" type="Label" parent="VBox_Visual" unique_id=1368924825]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "ENGINE_SETTINGS_PAGE_GENERAL_VISUAL_HEADER"
+label_settings = SubResource("LabelSettings_2x6cb")
+
+[node name="HSep" type="HSeparator" parent="VBox_Visual" unique_id=1527836415]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Button_ResetDisplayServer" type="Button" parent="VBox_Visual" unique_id=117245800]
+layout_mode = 2
+tooltip_text = "ENGINE_SETTINGS_PAGE_RESET_DISPLAY_SERVER_DEFAULT_TOOLTIP"
+mouse_default_cursor_shape = 2
+theme = ExtResource("4_4lk4x")
+text = "ENGINE_SETTINGS_PAGE_RESET_DISPLAY_SERVER_DEFAULT"
+alignment = 0
+script = SubResource("GDScript_sropi")
+
+[node name="HSep_Spacer4" type="HSeparator" parent="VBox_Visual" unique_id=1025970192]
+layout_mode = 2
+theme_override_constants/separation = 12
+theme_override_styles/separator = SubResource("StyleBoxEmpty_i8tvi")
+
+[node name="Label_UiScaleHeader" type="Label" parent="VBox_Visual" unique_id=1054343715]
+layout_mode = 2
+text = "ENGINE_SETTINGS_PAGE_GENERAL_VISUAL_UI_SCALE_HEADER"
+
+[node name="Slider_UiScale" type="HSlider" parent="VBox_Visual" unique_id=1379297820 node_paths=PackedStringArray("label")]
+layout_mode = 2
+tooltip_text = "ENGINE_SETTINGS_PAGE_GENERAL_UI_SCALE_TOOLTIP"
+mouse_default_cursor_shape = 10
+theme = ExtResource("3_8w1c2")
+min_value = 0.5
+max_value = 2.0
+step = 0.05
+value = 1.0
+scrollable = false
+script = SubResource("GDScript_7klgf")
+key = "display/window/stretch/scale"
+label = NodePath("../Label_UiScaleHeader")
+suffix = "x"
+
+[node name="HSep_Spacer3" type="HSeparator" parent="VBox_Visual" unique_id=1120313682]
+layout_mode = 2
+theme_override_constants/separation = 12
+theme_override_styles/separator = SubResource("StyleBoxEmpty_i8tvi")
+
+[node name="Label_TaskbarSizeHeader" type="Label" parent="VBox_Visual" unique_id=1363132171]
+layout_mode = 2
+text = "ENGINE_SETTINGS_PAGE_GENERAL_VISUAL_TASKBAR_SIZE_HEADER"
+
+[node name="Slider_TaskbarSize" type="HSlider" parent="VBox_Visual" unique_id=1424656506 node_paths=PackedStringArray("label")]
+layout_mode = 2
+tooltip_text = "ENGINE_SETTINGS_PAGE_GENERAL_TASKBAR_SIZE_TOOLTIP"
+mouse_default_cursor_shape = 10
+theme = ExtResource("3_8w1c2")
+min_value = 25.0
+max_value = 50.0
+value = 30.0
+rounded = true
+scrollable = false
+script = SubResource("GDScript_2tifn")
+key = "bananapour/general/taskbar_height"
+label = NodePath("../Label_TaskbarSizeHeader")
+display_as_percent = true
+percent_excludes_zero = false
+
+[node name="HSep_Spacer" type="HSeparator" parent="VBox_Visual" unique_id=1174190873]
+layout_mode = 2
+theme_override_constants/separation = 24
+theme_override_styles/separator = SubResource("StyleBoxEmpty_i8tvi")
+
+[node name="Check_WorldListShader" type="CheckBox" parent="VBox_Visual" unique_id=84617454]
+layout_mode = 2
+tooltip_text = "ENGINE_SETTINGS_PAGE_GENERAL_VISUAL_ENABLE_WORLD_LIST_SHADER_TOOLTIP"
+mouse_default_cursor_shape = 2
+text = "ENGINE_SETTINGS_PAGE_GENERAL_VISUAL_ENABLE_WORLD_LIST_SHADER"
+script = ExtResource("2_ihk7t")
+key = "bananapour/general/world_list_shader"
+
+[node name="HSep_Spacer2" type="HSeparator" parent="VBox_Visual" unique_id=498405531]
+layout_mode = 2
+theme_override_constants/separation = 24
+theme_override_styles/separator = SubResource("StyleBoxEmpty_i8tvi")
+
+[node name="VBox_Performance" type="VBoxContainer" parent="." unique_id=1414325601]
+layout_mode = 2
+
+[node name="Label_PerformanceHeader" type="Label" parent="VBox_Performance" unique_id=2002015794]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "ENGINE_SETTINGS_PAGE_GENERAL_PERFORMANCE_HEADER"
+label_settings = SubResource("LabelSettings_2x6cb")
+
+[node name="HSep" type="HSeparator" parent="VBox_Performance" unique_id=927029225]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Label_LowProcessorHeader" type="Label" parent="VBox_Performance" unique_id=370720499]
+layout_mode = 2
+text = "ENGINE_SETTINGS_PAGE_GENERAL_PERFORMANCE_LOW_PROCESSOR_HEADER"
+
+[node name="Option_LowProcessor" type="OptionButton" parent="VBox_Performance" unique_id=1175078671]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+tooltip_text = "ENGINE_SETTINGS_PAGE_GENERAL_PERFORMANCE_LOW_PROCESSOR_TOOLTIP"
+script = SubResource("GDScript_nl872")
+
+[node name="HSep_MiniSpacer0" type="HSeparator" parent="VBox_Performance" unique_id=414305226]
+layout_mode = 2
+theme_override_constants/separation = 14
+theme_override_styles/separator = SubResource("StyleBoxEmpty_gn66n")
+
+[node name="Check_VSync" type="CheckBox" parent="VBox_Performance" unique_id=508664116]
+layout_mode = 2
+tooltip_text = "ENGINE_SETTINGS_PAGE_GENERAL_PERFORMANCE_VSYNC_TOOLTIP"
+mouse_default_cursor_shape = 2
+text = "ENGINE_SETTINGS_PAGE_GENERAL_PERFORMANCE_VSYNC"
+script = ExtResource("2_ihk7t")
+key = "display/window/vsync/vsync_mode"
+
+[node name="HSep_Spacer" type="HSeparator" parent="VBox_Performance" unique_id=1142386034]
+layout_mode = 2
+theme_override_constants/separation = 24
+theme_override_styles/separator = SubResource("StyleBoxEmpty_i8tvi")
+
+[editable path="Header"]

@@ -1,0 +1,196 @@
+[gd_scene format=3 uid="uid://38ktfo0b5x45"]
+
+[ext_resource type="Theme" uid="uid://cm3u0ms3lnnsc" path="res://asset/theme/main/header.tres" id="2_l0p7s"]
+[ext_resource type="StyleBox" uid="uid://bj81tw2atasw3" path="res://asset/theme/main/stylebox/header_panel.tres" id="3_gs3nu"]
+[ext_resource type="Script" uid="uid://d1h7xrch8saeh" path="res://scene/main/taskbar/Taskbar.cs" id="4_kco4x"]
+[ext_resource type="Script" uid="uid://c6ok0ombsc0os" path="res://scene/main/header/Header.cs" id="4_kq4x0"]
+[ext_resource type="Theme" uid="uid://ddexy01pp37b1" path="res://asset/theme/home/home.tres" id="5_7wt0y"]
+[ext_resource type="PackedScene" uid="uid://cijispd6jofjx" path="res://scene/main/header/actionbar/global/actionbar_file.tscn" id="5_mm1ql"]
+[ext_resource type="Theme" uid="uid://2yk8byukiy02" path="res://asset/theme/main/taskbar.tres" id="6_2jriu"]
+[ext_resource type="PackedScene" uid="uid://3u1gcxqoaq5h" path="res://scene/main/header/actionbar/global/actionbar_project.tscn" id="6_q2oic"]
+[ext_resource type="Texture2D" uid="uid://bejy23w4qwuhn" path="res://asset/material/window/minimize.svg" id="7_3uat5"]
+[ext_resource type="PackedScene" uid="uid://6ksxl1g3hcvy" path="res://scene/main/header/actionbar/global/actionbar_help.tscn" id="7_tyv27"]
+[ext_resource type="PackedScene" uid="uid://cp0ceyv6os081" path="res://scene/main/header/actionbar/global/actionbar_debug.tscn" id="8_676lm"]
+[ext_resource type="Texture2D" uid="uid://cycmibna7j4xu" path="res://asset/material/window/close.svg" id="8_nx1ih"]
+[ext_resource type="Texture2D" uid="uid://v47a8l0v77f2" path="res://icon.png" id="11_kyve8"]
+[ext_resource type="Script" uid="uid://cv78a218kummk" path="res://scene/main/MainSceneRoot.cs" id="13_jlow7"]
+[ext_resource type="Script" uid="uid://bhs0e83p6wbaj" path="res://scene/main/alert/AlertHolder.cs" id="14_dvyda"]
+[ext_resource type="PackedScene" uid="uid://djdy8pajcdhin" path="res://scene/main/header/ftp/ftp_status_indicator.tscn" id="20_gtms6"]
+[ext_resource type="StyleBox" uid="uid://d3llfwcm035av" path="res://asset/theme/main/stylebox/taskbar/taskbar_panel_normal.tres" id="27_lysc8"]
+[ext_resource type="StyleBox" uid="uid://cwc7tas8gn1e3" path="res://asset/theme/main/stylebox/taskbar/taskbar_panel_read_only_proj.tres" id="29_vg48i"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hlewa"]
+
+[sub_resource type="InputEventAction" id="InputEventAction_4qj2l"]
+action = &"ui_close_app"
+
+[sub_resource type="Shortcut" id="Shortcut_x3u1l"]
+events = [SubResource("InputEventAction_4qj2l")]
+
+[sub_resource type="LabelSettings" id="LabelSettings_bfc3n"]
+font_size = 12
+font_color = Color(1, 1, 1, 0.5882353)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q8ej3"]
+bg_color = Color(0.054902, 0.0745098, 0.105882, 1)
+corner_detail = 1
+
+[sub_resource type="GDScript" id="GDScript_wf0d5"]
+script/source = "extends PanelContainer
+
+func _ready():
+	child_exiting_tree.connect(_on_child_free)
+	
+	show()
+	
+	var tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(self, \"self_modulate\", Color.TRANSPARENT, 0.66)
+
+func _on_child_free(_node: Node) -> void:
+	queue_free()
+"
+
+[sub_resource type="GDScript" id="GDScript_vdahq"]
+script/source = "extends TextureRect
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pivot_offset = size / 2
+	
+	var tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+	tween.set_parallel()
+	
+	tween.tween_property(self, \"scale\", Vector2.ZERO, 0.8)
+	tween.tween_property(self, \"rotation\", PI / 4, 0.8)
+	
+	await tween.finished
+	queue_free()
+"
+
+[node name="Main" type="Control" unique_id=2081134118]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("13_jlow7")
+
+[node name="Content" type="VBoxContainer" parent="." unique_id=725208677]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Header" type="PanelContainer" parent="Content" unique_id=1799412857 node_paths=PackedStringArray("ButtonAppMinimize", "ButtonAppClose", "FtpStatusIndicator", "LabelVersion", "ActionbarInjectable")]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("2_l0p7s")
+theme_override_styles/panel = ExtResource("3_gs3nu")
+script = ExtResource("4_kq4x0")
+ButtonAppMinimize = NodePath("Content/Button_Mini")
+ButtonAppClose = NodePath("Content/Button_Close")
+FtpStatusIndicator = NodePath("Content/HBox_FTP")
+LabelVersion = NodePath("Content/Label_Version")
+ActionbarInjectable = NodePath("Content/Actionbar")
+
+[node name="Content" type="HBoxContainer" parent="Content/Header" unique_id=1045190983]
+layout_mode = 2
+
+[node name="Actionbar" type="MenuBar" parent="Content/Header/Content" unique_id=1333845419]
+layout_mode = 2
+theme = ExtResource("5_7wt0y")
+
+[node name="File" parent="Content/Header/Content/Actionbar" unique_id=1912306348 instance=ExtResource("5_mm1ql")]
+
+[node name="Project" parent="Content/Header/Content/Actionbar" unique_id=753505065 instance=ExtResource("6_q2oic")]
+size = Vector2i(455, 204)
+
+[node name="Help" parent="Content/Header/Content/Actionbar" unique_id=1917269645 instance=ExtResource("7_tyv27")]
+
+[node name="Debug" parent="Content/Header/Content/Actionbar" unique_id=1748662790 instance=ExtResource("8_676lm")]
+size = Vector2i(609, 339)
+
+[node name="Center" type="VSeparator" parent="Content/Header/Content" unique_id=489569012]
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_styles/separator = SubResource("StyleBoxEmpty_hlewa")
+
+[node name="HBox_FTP" parent="Content/Header/Content" unique_id=186830621 instance=ExtResource("20_gtms6")]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="Button_Mini" type="Button" parent="Content/Header/Content" unique_id=1759289771]
+layout_mode = 2
+tooltip_text = "MAIN_HEADER_MINIMIZE_CURRENT_APP"
+icon = ExtResource("7_3uat5")
+
+[node name="Button_Close" type="Button" parent="Content/Header/Content" unique_id=563064783]
+layout_mode = 2
+tooltip_text = "MAIN_HEADER_CLOSE_CURRENT_APP"
+shortcut = SubResource("Shortcut_x3u1l")
+icon = ExtResource("8_nx1ih")
+
+[node name="Label_Version" type="Label" parent="Content/Header/Content" unique_id=1965087072]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_bfc3n")
+
+[node name="Apps" type="Control" parent="Content" unique_id=1268167692]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="TaskbarPanel" type="PanelContainer" parent="Content" unique_id=55732144]
+layout_mode = 2
+theme = ExtResource("6_2jriu")
+theme_override_styles/panel = ExtResource("27_lysc8")
+
+[node name="Taskbar" type="Control" parent="Content/TaskbarPanel" unique_id=61529081]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("4_kco4x")
+TaskbarPanelDefault = ExtResource("27_lysc8")
+TaskbarPanelReadOnlyProj = ExtResource("29_vg48i")
+
+[node name="Alert" type="VBoxContainer" parent="." unique_id=1465865351]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.98
+anchor_top = 0.98
+anchor_right = 0.98
+anchor_bottom = 0.98
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+script = ExtResource("14_dvyda")
+
+[node name="BootAnimation" type="PanelContainer" parent="." unique_id=583980454]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_q8ej3")
+script = SubResource("GDScript_wf0d5")
+
+[node name="Texture_Logo" type="TextureRect" parent="BootAnimation" unique_id=437389629]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("11_kyve8")
+stretch_mode = 5
+script = SubResource("GDScript_vdahq")
+
+[connection signal="BananaPourCloseRequest" from="Content/Header/Content/Actionbar/File" to="." method="OnWindowCloseRequest"]
+[connection signal="pressed" from="Content/Header/Content/Button_Mini" to="." method="OnAppSceneServerWrapperFocusFirst"]
+[connection signal="pressed" from="Content/Header/Content/Button_Close" to="." method="OnAppSceneServerWrapperCloseActive"]
