@@ -44,11 +44,11 @@ public partial class TagPictureFontButton : TagInsertButtonBase
             return;
 
         var ver = (int)ProjectManager.GetRomfsVersion();
-        if (VersionRequirement == 1 && ver >= (int)RomfsVersion.v120)
-            QueueDeleteButton();
+        //if (VersionRequirement == 1 && ver >= (int)RomfsVersion.v120)
+        //    QueueDeleteButton();
 
-        if (VersionRequirement == 2 && ver < (int)RomfsVersion.v120)
-            QueueDeleteButton();
+        //if (VersionRequirement == 2 && ver < (int)RomfsVersion.v120)
+        //    QueueDeleteButton();
     }
 
     public override void _Pressed()

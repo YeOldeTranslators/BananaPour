@@ -70,7 +70,7 @@ public partial class LangPicker : OptionButton
 		if (korean == -1)
 			throw new Exception("Could not find index of korean language!");
 
-		SetItemDisabled(korean, ver < RomfsVersion.v110);
+		//SetItemDisabled(korean, ver < RomfsVersion.v110);
 
 		if (Selected == korean)
 			SetSelection("USen");

@@ -7,8 +7,7 @@ namespace BananaPour.Project;
 public static class MetaVersionExclusivityTable
 {
     public static readonly Dictionary<string, RomfsVersion> Table = new(){
-        { "VrGyroReset", RomfsVersion.v130 },
-        { "CloseTalkMessageNoSe", RomfsVersion.v120 },
+
     };
 
     public static RomfsVersion Lookup(string type)

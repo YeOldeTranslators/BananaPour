@@ -326,19 +326,28 @@ custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 alignment = 1
 selected = 0
-item_count = 6
+item_count = 3
 popup/item_0/text = "FRONT_DOOR_PROJECT_VERSION_INVALID_VERSION"
 popup/item_0/id = 0
 popup/item_1/text = "FRONT_DOOR_PROJECT_VERSION_V100"
 popup/item_1/id = 100
 popup/item_2/text = "FRONT_DOOR_PROJECT_VERSION_V101"
 popup/item_2/id = 101
-popup/item_3/text = "FRONT_DOOR_PROJECT_VERSION_V110"
-popup/item_3/id = 110
-popup/item_4/text = "FRONT_DOOR_PROJECT_VERSION_V120"
-popup/item_4/id = 120
-popup/item_5/text = "FRONT_DOOR_PROJECT_VERSION_V130"
-popup/item_5/id = 130
+script = SubResource("GDScript_8daaw")
+
+[node name="Option_Version2" type="OptionButton" parent="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options" unique_id=626087645]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+alignment = 1
+selected = 0
+item_count = 3
+popup/item_0/text = "FRONT_DOOR_PROJECT_VERSION_INVALID_VERSION"
+popup/item_0/id = 0
+popup/item_1/text = "FRONT_DOOR_PROJECT_VERSION_V100"
+popup/item_1/id = 100
+popup/item_2/text = "FRONT_DOOR_PROJECT_VERSION_V101"
+popup/item_2/id = 101
 script = SubResource("GDScript_8daaw")
 
 [node name="HSep2" type="HSeparator" parent="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options" unique_id=394085288]
@@ -450,6 +459,9 @@ resources = [PackedStringArray("home", "project_loading"), [ExtResource("11_ajwf
 [connection signal="id_pressed" from="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options/Option_Version" to="." method="OnNewProjectVersionSelected"]
 [connection signal="item_selected" from="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options/Option_Version" to="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options/Option_Version" method="_item_selected"]
 [connection signal="pressed" from="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options/Option_Version" to="." method="OnNewProjectVersionButtonPressed"]
+[connection signal="id_pressed" from="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options/Option_Version2" to="." method="OnNewProjectVersionSelected"]
+[connection signal="item_selected" from="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options/Option_Version2" to="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options/Option_Version2" method="_item_selected"]
+[connection signal="pressed" from="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options/Option_Version2" to="." method="OnNewProjectVersionButtonPressed"]
 [connection signal="LangSelectedByEngine" from="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options/Option_DefaultLang" to="." method="OnNewProjectDefaultLangSelected"]
 [connection signal="LangSelectedByUser" from="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options/Option_DefaultLang" to="." method="OnNewProjectDefaultLangSelected"]
 [connection signal="pressed" from="Content/Content_Primary/NewProject/Margin/Scroll/VBox_Options/Button_Create" to="." method="OnNewProjectCreate"]

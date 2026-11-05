@@ -24,8 +24,8 @@ public partial class NumberTime : TagEditSceneWithText
 
 		// If project is before version 1.2.0, remove EU options in menu
 		var ver = ProjectManager.GetRomfsVersion();
-		if (ver >= RomfsVersion.v120)
-			return;
+		//if (ver >= RomfsVersion.v120)
+		//	return;
 
 		int removeIdx = (ushort)TagNameNumber.DateEU - (ushort)TagNameNumber.Date;
 		option.RemoveItem(removeIdx);

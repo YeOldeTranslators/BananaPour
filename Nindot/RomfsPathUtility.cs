@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -68,7 +69,7 @@ public static class RomfsPathUtility
     {
         hash = null;
 
-        var filePath = path + "LocalizedData/EUen/MessageData/SystemMessage.szs";
+        var filePath = path + "Mals/USen.Product.100.sarc.zs";
         if (!File.Exists(filePath))
             return;
 
@@ -82,7 +83,7 @@ public static class RomfsPathUtility
 
         byte[] hashValue = mySHA256.ComputeHash(filestream);
         hash = BitConverter.ToString(hashValue).Replace("-", string.Empty).ToLower();
-
+        Debug.WriteLine(hash);
         filestream.Close();
     }
 
@@ -91,29 +92,14 @@ public static class RomfsPathUtility
         INVALID_VERSION = -1,
         v100 = 100,
         v101 = 101,
-        v110 = 110,
-        v120 = 120,
-        v130 = 130,
     };
 
     private static readonly Dictionary<string, RomfsVersion> HashTable = new() {
-        { "12f2c4840e7f942e8bcf6a81f4e90bfc58f327e4cfbe01d48225e61688f6a64d", RomfsVersion.v100 },
-        { "4635afd1b5de643db68fc95f3422b2bd9e9efdb6fb1cc9f20a04c72b24cd8644", RomfsVersion.v101 },
-        { "3d0e59ba4b727b7651f8aa9ed72b431a2bede917406533c69d3b6de268f8d198", RomfsVersion.v110 },
-        { "437fc064b6916b405fc81db6985e09b2341fd0ce4f6663197ea3d7bac591b85a", RomfsVersion.v120 },
-        { "9d1dc8610b5571ea32dad35c4e27a0895dc523c79cb170ffde838c898ed96d58", RomfsVersion.v130 },
+        { "21c5a849ca0fd61e26aabef2b3813abdca1591c994088faa06272723ac10c809", RomfsVersion.v100 },
+        { "aa", RomfsVersion.v101 },
     };
 
     private static readonly string[] RequiredRomfsDirectories = [
-        "EffectData",
-        "EventData",
-        "LayoutData",
-        "LocalizedData",
-        "MovieData",
-        "ObjectData",
-        "ShaderData",
-        "SoundData",
-        "StageData",
-        "SystemData",
+        "Mals",
     ];
 }
